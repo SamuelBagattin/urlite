@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+      "moduleResolution": "node",
+      "outDir": "./public/",
+      "sourceMap": true,
+      "noImplicitAny": true,
+      "module": "esnext",
+      "target": "es5",
+      "jsx": "react",
+      "allowJs": true,
+      "allowSyntheticDefaultImports": true
+    }
+  }

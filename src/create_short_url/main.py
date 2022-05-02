@@ -4,7 +4,8 @@ import boto3
 import string
 import os
 
-dynamodb = boto3.client('dynamodb')
+dynamodb = boto3.client('dynamodb', region_name=os.environ['TABLE_REGION'])
+table_name = os.environ['TABLE_NAME']
 
 
 def lambda_handler(event, context):
@@ -23,7 +24,7 @@ def lambda_handler(event, context):
             'body': json.dumps({'message': 'body does not contain \'url\' property'})
         }
 
-    dynamodb.put_item(TableName='short_urls', Item={'blob': {'S': blob}, 'key2': {'S': url}})
+    dynamodb.put_item(TableName=table_name, Item={'blob': {'S': blob}, 'key2': {'S': url}})
     return {
         'statusCode': 200,
         'body': json.dumps(
