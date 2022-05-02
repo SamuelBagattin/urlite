@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0" />
+  <title>urlite</title>
+
+  <!-- CSS  -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="main.css" type="text/css" rel="stylesheet" media="screen,projection" />
+</head>
+
+<body>
+  <nav class="deep-purple accent-2" role="navigation">
+    <div class="nav-wrapper container">
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <li><a href="#">Github</a></li>
+        <li><a href="#">Demo</a></li>
+        <li><a href="#">Download</a></li>
+        <li><a href="#">Doc</a></li>
+      </ul>
+    </div>
+  </nav>
+  <div class="section no-pad-bot deep-purple accent-2" id="index-banner">
+    <div class="container">
+      <br><br>
+      <h1 class="header center white-text">LOGO URLite</h1>
+      <div class="row center">
+        <h5 class="header col s12 white-text">To reduce your too long url</h5>
+      </div>
+      <div class="row center">
+        <a href="https://chrome.google.com/webstore/detail/urlite/kjmaeefbndimbbnbcighfjdnibjjihbk" target="_blank">
+          <img src="https://github.com/urlite/extension/raw/master/images/chrome-badge.png" alt="" width="auto"
+            height="auto"></a>
+        <a href="https://addons.mozilla.org/en-US/firefox/addon/urlite" target="_blank"> <img
+            src="https://github.com/urlite/extension/raw/master/images/mozilla-badge.png" alt="" width="auto"
+            height="auto"></a>
+      </div>
+
+      <br><br>
+
+    </div>
+  </div>
+
+
+  <div class="container">
+    <div class="section">
+
+      <!--   Icon Section   -->
+      <div class="row">
+        <div class="col s12 m4">
+          <div class="icon-block">
+            <h2 class="center light-blue-text"><i class="material-icons">flash_on</i></h2>
+            <h5 class="center">Speeds up development</h5>
+
+            <p class="light">We did most of the heavy lifting for you to provide a default stylings that incorporate our
+              custom components. Additionally, we refined animations and transitions to provide a smoother experience
+              for developers.</p>
+          </div>
+        </div>
+
+        <div class="col s12 m4">
+          <div class="icon-block">
+            <h2 class="center light-blue-text"><i class="material-icons">group</i></h2>
+            <h5 class="center">User Experience Focused</h5>
+
+            <p class="light">By utilizing elements and principles of Material Design, we were able to create a framework
+              that incorporates components and animations that provide more feedback to users. Additionally, a single
+              underlying responsive system across all platforms allow for a more unified user experience.</p>
+          </div>
+        </div>
+
+        <div class="col s12 m4">
+          <div class="icon-block">
+            <h2 class="center light-blue-text"><i class="material-icons">settings</i></h2>
+            <h5 class="center">Easy to work with</h5>
+
+            <p class="light">We have provided detailed documentation as well as specific code examples to help new users
+              get started. We are also always open to feedback and can answer any questions a user may have about
+              Materialize.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <br><br>
+
+  </div>
+
+  <div class="container">
+
+    <div class="section">
+
+      <div class="row">
+
+        <div class="col s9">
+          <input id="longurl" type="text" class="validate">
+          <label for="longurl">Link</label>
+        </div>
+
+        <div class="col s3">
+          <a class="waves-effect waves-light btn create-short-url">button</a>
+        </div>
+      </div><div id="url-error" class="error hide">Invalid URL</div>
+        <div class="longurl"></div>
+    </div>
+
+  </div>
+  <br><br>
+  </div>
+
+  <footer class="page-footer footer-copyright deep-purple accent-2">
+    <div class="container">
+      © 2014 Copyright Text
+    </div>
+  </footer>
+<script async defer src="main.js"></script>
+</body>
+
+</html>

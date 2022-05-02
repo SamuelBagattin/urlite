@@ -1,12 +1,15 @@
 import json
+import os
+
 import boto3
 
-dynamodb = boto3.client('dynamodb')
+dynamodb = boto3.client('dynamodb', region_name=os.environ['TABLE_REGION'])
+table_name = os.environ['TABLE_NAME']
 
 
 def lambda_handler(event, context):
     result = dynamodb.get_item(
-        TableName='short_urls',
+        TableName=table_name,
         Key={'blob': {'S': event['pathParameters']['proxy']}},
         ProjectionExpression='key2')
     return {
@@ -14,4 +17,4 @@ def lambda_handler(event, context):
         'headers': {
             'Location': result['Item']['key2']['S'],
         }
-    };
+    }
