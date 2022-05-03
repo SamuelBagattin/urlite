@@ -197,5 +197,11 @@ export class UrlliteStack extends cdk.Stack {
 			recordName: 'urlite.samuelbagattin.com',
 		});
 
+		new aws_route53.ARecord(this, 'urlite.samuelbagattin.com_ipv4', {
+			zone: hostedZone,
+			target: aws_route53.RecordTarget.fromAlias(new aws_route53_targets.CloudFrontTarget(distribution)),
+			recordName: 'urlite.samuelbagattin.com',
+		});
+
 	}
 }
