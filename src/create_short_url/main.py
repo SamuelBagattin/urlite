@@ -3,10 +3,18 @@ import random
 import boto3
 import string
 import os
+from urllib.parse import urlparse
 
 dynamodb = boto3.client('dynamodb', region_name=os.environ['TABLE_REGION'])
 table_name = os.environ['TABLE_NAME']
 
+
+def is_protocol_specified(x):
+    try:
+        result = urlparse(x)
+        return result.scheme != ''
+    except:
+        return False
 
 def lambda_handler(event, context):
     blob = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
@@ -23,6 +31,9 @@ def lambda_handler(event, context):
             'statusCode': 400,
             'body': json.dumps({'message': 'body does not contain \'url\' property'})
         }
+
+    if not is_protocol_specified(url):
+        url = 'https://' + url
 
     dynamodb.put_item(TableName=table_name, Item={'blob': {'S': blob}, 'key2': {'S': url}})
     return {

@@ -88,6 +88,7 @@ export class UrlliteStack extends cdk.Stack {
 		const api = new apigateway.RestApi(this, 'urlite-api', {
 			restApiName: 'urlite',
 			description: 'urlite',
+			endpointTypes: [apigateway.EndpointType.REGIONAL],
 		});
 
 		const urlsBaseResource = api.root.addResource("urls");
