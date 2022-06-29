@@ -16,10 +16,11 @@ module.exports = {
 
     mode: 'development',
     devServer: {
-        contentBase: path.resolve(__dirname, "./src"),
-        historyApiFallback: true,
-        inline: true,
-        open: true,
+        static: {
+            directory: path.join(__dirname, 'src'),
+        },
+        compress: true,
+        port: 9000,
     },
     module: {
         rules: [
@@ -29,37 +30,15 @@ module.exports = {
                 exclude: /node_modules/,
             },
             {
-                test: /\.module\.s(a|c)ss$/,
-                loader: [
-                    isDevelopment ? 'style-loader' : extract.loader,
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            modules: true,
-                            sourceMap: isDevelopment
-                        }
-                    },
-                    {
-                        loader: 'sass-loader',
-                        options: {
-                            sourceMap: isDevelopment
-                        }
-                    }
-                ]
-            },
-            {
-                test: /\.s(a|c)ss$/,
-                exclude: /\.module.(s(a|c)ss)$/,
-                loader: [
-                    isDevelopment ? 'style-loader' : extract.loader,
-                    'css-loader',
-                    {
-                        loader: 'sass-loader',
-                        options: {
-                            sourceMap: isDevelopment
-                        }
-                    }
-                ]
+                test: /\.s[ac]ss$/i,
+                use: [
+                    // Creates `style` nodes from JS strings
+                    "style-loader",
+                    // Translates CSS into CommonJS
+                    "css-loader",
+                    // Compiles Sass to CSS
+                    "sass-loader",
+                ],
             },
         ],
     },
