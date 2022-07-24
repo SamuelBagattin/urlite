@@ -1,12 +1,11 @@
 //Webpack requires this to work with directories
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+import * as  HtmlWebpackPlugin from 'html-webpack-plugin';
+import * as  MiniCssExtractPlugin from "mini-css-extract-plugin";
 const EasySeo = require('webpack-easy-seo')
-const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
-const { extendDefaultPlugins } = require("svgo");
-
+import * as  ImageMinimizerPlugin from "image-minimizer-webpack-plugin";
+import * as path from 'path';
+import * as webpack from 'webpack';
+import 'webpack-dev-server';
 
 const seoInst = new EasySeo({
     // Application Title, which is shown in the tab bar.
@@ -25,7 +24,7 @@ const seoInst = new EasySeo({
 });
 
 // This is main configuration object that tells Webpackw what to do.
-module.exports = {
+const config: webpack.Configuration = {
     //path to entry paint
     entry: './src/index.ts',
     //path and filename of the final output
@@ -103,12 +102,11 @@ module.exports = {
                                 },
                             },
                         },
-                        filter: (source, sourcePath) => {
-                            console.log(sourcePath.toString())
-                            return true;},
                     },
                 ],
             }),
         ],
     },
 };
+
+export default config;
