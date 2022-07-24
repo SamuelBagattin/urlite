@@ -1,4 +1,3 @@
-import { validURL } from './validation';
 import { UrlInputData } from './models';
 
 export const submitUrlElement: HTMLLinkElement = getATag('a.create-short-url');
@@ -8,20 +7,8 @@ export function showShortUrl(shortUrl: string): void {
     getDiv('div.longurl').innerText = shortUrl;
 }
 export function getUrlInputData(): UrlInputData {
-    return { data: inputUrlElement.value, isValidUrl: validURL(inputUrlElement.value) };
+    return { data: inputUrlElement.value };
 }
-
-export function showUrlError(): void {
-    urlErrorDiv.classList.remove('hide');
-    urlErrorDiv.classList.add('show');
-    submitUrlElement.classList.add('disabled');
-}
-export function hideUrlError(): void {
-    urlErrorDiv.classList.remove('show');
-    urlErrorDiv.classList.add('hide');
-    submitUrlElement.classList.remove('disabled');
-}
-
 function getButton(query: string): HTMLButtonElement {
     return document.querySelector(query) as HTMLButtonElement;
 }

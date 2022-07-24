@@ -4,6 +4,5 @@ export interface UrlCreationResponse {
 }
 
 export interface UrlInputData {
-    isValidUrl: boolean;
     data: string;
 }

@@ -1,13 +1,13 @@
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as lambda_python from '@aws-cdk/aws-lambda-python-alpha';
 import * as cdk from 'aws-cdk-lib';
 import {
 	aws_apigateway,
 	aws_certificatemanager,
 	aws_cloudfront,
 	aws_cloudfront_origins,
-	aws_iam,
+	aws_iam, aws_logs,
 	aws_route53,
 	aws_route53_targets,
 	aws_s3,
@@ -15,7 +15,9 @@ import {
 } from 'aws-cdk-lib';
 import * as path from 'path';
 import {Effect, PolicyDocument} from "aws-cdk-lib/aws-iam";
-import {OriginProtocolPolicy, ViewerProtocolPolicy, CloudFrontAllowedMethods} from "aws-cdk-lib/aws-cloudfront";
+import {OriginProtocolPolicy, ViewerProtocolPolicy} from "aws-cdk-lib/aws-cloudfront";
+import {RetentionDays} from "aws-cdk-lib/aws-logs";
+import {Architecture} from "aws-cdk-lib/aws-lambda";
 
 interface UrlliteStackProps extends cdk.StackProps {
 	urliteCertificateArn: string;
@@ -29,14 +31,23 @@ export class UrlliteStack extends cdk.Stack {
 		const tableName = 'short_urls';
 		const tableArn = `arn:aws:dynamodb:${tableRegion}:${this.account}:table/${tableName}`
 
-		const redirectLambda = new lambda.Function(this, 'urlite-redirection-lambda', {
+		const powertoolsLayer = lambda.LayerVersion.fromLayerVersionArn(
+			this,
+			"lambda-powertools",
+			`arn:aws:lambda:${this.region}:017000801446:layer:AWSLambdaPowertoolsPython:24`
+		)
+
+		const redirectLambda = new lambda_python.PythonFunction(this, 'urlite-redirection-lambda', {
 			runtime: lambda.Runtime.PYTHON_3_9,
-			handler: 'main.lambda_handler',
-			code: lambda.Code.fromAsset(path.join(__dirname, '../../src/redirect_short_url')),
+			entry: "../src/redirect_short_url",
 			environment: {
 				TABLE_NAME: tableName,
 				TABLE_REGION: tableRegion,
+				POWERTOOLS_SERVICE_NAME: 'urlite-redirector',
+				LOG_LEVEL: 'INFO'
 			},
+			layers: [powertoolsLayer],
+			tracing: lambda.Tracing.ACTIVE,
 			role: new aws_iam.Role(this, 'urlite-redirection-lambda-role', {
 				assumedBy: new aws_iam.ServicePrincipal('lambda.amazonaws.com'),
 				inlinePolicies: {
@@ -52,26 +63,32 @@ export class UrlliteStack extends cdk.Stack {
 				},
 				managedPolicies: [
 					aws_iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
+					aws_iam.ManagedPolicy.fromAwsManagedPolicyName('AWSXRayDaemonWriteAccess'),
 				],
 			}),
+			logRetention: RetentionDays.TWO_WEEKS,
+			architecture: Architecture.ARM_64,
 		});
 
-		const createUrlLambda = new lambda.Function(this, 'urlite-urlCreation-lambda', {
+		const createUrlLambda = new lambda_python.PythonFunction(this, 'urlite-createurl-lambda', {
+			entry: "../src/create_short_url",
 			runtime: lambda.Runtime.PYTHON_3_9,
-			handler: 'main.lambda_handler',
-			code: lambda.Code.fromAsset(path.join(__dirname, '../../src/create_short_url')),
 			environment: {
 				TABLE_NAME: tableName,
 				TABLE_REGION: tableRegion,
 				baseUrl: 'https://urlite.samuelbagattin.com/',
+				POWERTOOLS_SERVICE_NAME: 'urlite-creator',
+				LOG_LEVEL: 'INFO'
 			},
+			layers: [powertoolsLayer],
+			tracing: lambda.Tracing.ACTIVE,
 			role: new aws_iam.Role(this, 'urlite-createUrl-lambda-role', {
 				assumedBy: new aws_iam.ServicePrincipal('lambda.amazonaws.com'),
 				inlinePolicies: {
 					"urlite-access": new PolicyDocument({
 						statements: [
 							new aws_iam.PolicyStatement({
-								actions: ['dynamodb:PutItem','dynamodb:DescribeTable'],
+								actions: ['dynamodb:PutItem', 'dynamodb:DescribeTable'],
 								effect: Effect.ALLOW,
 								resources: [tableArn],
 							})
@@ -80,8 +97,12 @@ export class UrlliteStack extends cdk.Stack {
 				},
 				managedPolicies: [
 					aws_iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
+					aws_iam.ManagedPolicy.fromAwsManagedPolicyName('AWSXRayDaemonWriteAccess'),
 				],
 			}),
+			logRetention: RetentionDays.TWO_WEEKS,
+			architecture: Architecture.ARM_64,
+
 		});
 
 
@@ -89,6 +110,11 @@ export class UrlliteStack extends cdk.Stack {
 			restApiName: 'urlite',
 			description: 'urlite',
 			endpointTypes: [apigateway.EndpointType.REGIONAL],
+			deployOptions: {
+				dataTraceEnabled: true,
+				loggingLevel: apigateway.MethodLoggingLevel.INFO,
+				tracingEnabled: true,
+			}
 		});
 
 		const urlsBaseResource = api.root.addResource("urls");
@@ -96,33 +122,22 @@ export class UrlliteStack extends cdk.Stack {
 		urlsBaseResource.addMethod('POST', new apigateway.LambdaIntegration(createUrlLambda), {apiKeyRequired: true});
 
 		const apiKeyValue = 'xV7lvur40E23uzU9123bw7moIRj01whhaEgzHsdD'
-		const apiKey = new aws_apigateway.ApiKey(this, 'urlite-api-key', {
-			apiKeyName: 'urlite-api-key',
-			description: 'urlite',
+		new aws_apigateway.RateLimitedApiKey(this, 'urlite-api-key-rate-limited', {
+			apiKeyName: 'urlite-api-key-rate-limited',
 			enabled: true,
 			generateDistinctId: true,
-			value: apiKeyValue,
-		});
-
-		const usagePlan = new aws_apigateway.UsagePlan(this, 'urlite-usage-plan', {
-			apiStages: [
-				{
-					api: api,
-					stage: api.deploymentStage,
-				}
-			],
-			name: 'urlite-usage-plan',
 			throttle: {
 				rateLimit: 10,
-				burstLimit: 50,
+				burstLimit: 50
 			},
-		});
+			value: apiKeyValue,
+			resources: [api],
+			apiStages: [{
+				api: api,
+				stage: api.deploymentStage,
+			}]
+		})
 
-		new aws_apigateway.CfnUsagePlanKey(this, 'urlite-usage-plan-key', {
-			keyId: apiKey.keyId,
-			keyType: 'API_KEY',
-			usagePlanId: usagePlan.usagePlanId,
-		});
 
 		const apigatewayUrl = `${api.restApiId}.execute-api.${this.region}.amazonaws.com`
 
@@ -130,19 +145,10 @@ export class UrlliteStack extends cdk.Stack {
 			comment: 'urlite-website-oai',
 		});
 
-
-		const logsBucket = new aws_s3.Bucket(this, 'urlite-website-logs-bucket', {
-			bucketName: 'urlite-website-logs-bucket',
-			publicReadAccess: false,
-		})
-
-		logsBucket.grantWrite(new aws_iam.ServicePrincipal('logging.s3.amazonaws.com'));
-
 		// Create s3 bucket
 		const bucket = new aws_s3.Bucket(this, 'urlite-website-bucket', {
 			bucketName: 'urlite-website-bucket',
 			publicReadAccess: false,
-			serverAccessLogsBucket: logsBucket,
 		});
 
 		bucket.grantRead(oai);
@@ -152,7 +158,7 @@ export class UrlliteStack extends cdk.Stack {
 				origin: new aws_cloudfront_origins.HttpOrigin(apigatewayUrl, {
 					originPath: '/prod/urls',
 					customHeaders: {
-						'x-api-key': apiKeyValue,
+						'X-API-Key': apiKeyValue,
 					},
 					protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
 				}),
@@ -161,12 +167,11 @@ export class UrlliteStack extends cdk.Stack {
 			certificate: aws_certificatemanager.Certificate.fromCertificateArn(this, 'urlite-certificate', props.urliteCertificateArn),
 			domainNames: ["urlite.samuelbagattin.com"],
 			defaultRootObject: 'index.html',
-
 		});
 		distribution.addBehavior('/urls', new aws_cloudfront_origins.HttpOrigin(apigatewayUrl, {
 			originPath: '/prod',
 			customHeaders: {
-				'x-api-key': apiKeyValue,
+				'X-API-Key': apiKeyValue,
 			},
 			protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
 		}), {
@@ -178,7 +183,7 @@ export class UrlliteStack extends cdk.Stack {
 		new aws_s3_deployment.BucketDeployment(this, 'urlite-website-deployment', {
 			distribution: distribution,
 			destinationBucket: bucket,
-			distributionPaths: ['/*.html', '/*.js', '/*.css', '/*.png', '/*.jpg', '/*.svg', '/*.ico'],
+			distributionPaths: ['/', '/*.html', '/*.js', '/*.css', '/*.png', '/*.jpg', '/*.svg', '/*.ico'],
 			sources: [
 				aws_s3_deployment.Source.asset(path.join(__dirname, '../../src/website/dist'))
 			],
