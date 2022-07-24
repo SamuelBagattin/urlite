@@ -84,7 +84,6 @@ module.exports = {
     ],
     optimization: {
         minimizer: [
-            "...",
             new ImageMinimizerPlugin({
                 minimizer: {
                     implementation: ImageMinimizerPlugin.squooshMinify,
@@ -104,6 +103,9 @@ module.exports = {
                                 },
                             },
                         },
+                        filter: (source, sourcePath) => {
+                            console.log(sourcePath.toString())
+                            return true;},
                     },
                 ],
             }),
