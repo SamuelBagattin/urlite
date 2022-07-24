@@ -78,6 +78,7 @@ const config: webpack.Configuration = {
             title: seoInst.getTitle(),
             // Meta Tags
             meta: seoInst.getMetaTags(),
+            favicon: 'src/assets/favicon.ico'
         }),
         seoInst
     ],
