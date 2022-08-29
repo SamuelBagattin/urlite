@@ -7,7 +7,7 @@ import {ACMClient, ListCertificatesCommand} from "@aws-sdk/client-acm";
 
 (async () => {
 	const app = new cdk.App();
-	const region = "eu-west-1"
+	const region = "eu-west-1";
 	const route53Client = new Route53Client({
 		region: region
 	});
@@ -16,7 +16,7 @@ import {ACMClient, ListCertificatesCommand} from "@aws-sdk/client-acm";
 		MaxItems: 1,
 	}))
 	const acmClient = new ACMClient({
-		region: "us-east-1"
+		region: 'us-east-1'
 	});
 	const certificates = await acmClient.send(new ListCertificatesCommand({}))
 	const hostedZoneId = hostedZones.HostedZones![0].Id!.replace(/^\/hostedzone\//, "")

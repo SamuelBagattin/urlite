@@ -1,22 +1,23 @@
+import asyncio
 import json
 import random
-from typing import Dict
 
-import boto3
-import string
+from aws_xray_sdk.ext import aiohttp
+from boto3 import client
 import os
+import string
 from urllib.parse import urlparse
 from aws_lambda_powertools import Tracer, Logger
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent, event_source
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from aws_lambda_powertools.utilities import parameters
 
-
-dynamodb = boto3.client('dynamodb', region_name=os.environ['TABLE_REGION'])
+dynamodb = client('dynamodb', region_name=os.environ['TABLE_REGION'])
 table_name = os.environ['TABLE_NAME']
 
 tracer = Tracer()
 logger = Logger()
+
+base_url = os.getenv('baseUrl')
 
 
 def is_protocol_specified(x):
@@ -50,11 +51,12 @@ def handler(event: APIGatewayProxyEvent, context: LambdaContext):
         url = 'https://' + url
 
     dynamodb.put_item(TableName=table_name, Item={'blob': {'S': blob}, 'key2': {'S': url}})
+
     return {
         'statusCode': 200,
         'body': json.dumps(
             {
-                'shortUrl': os.getenv('baseUrl') + blob,
+                'shortUrl': base_url + blob,
                 'totalUrls': dynamodb.describe_table(TableName='short_urls')['Table']['ItemCount']
             }
         )

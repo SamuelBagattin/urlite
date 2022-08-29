@@ -40,6 +40,7 @@ export class UrlliteStack extends cdk.Stack {
 		const redirectLambda = new lambda_python.PythonFunction(this, 'urlite-redirection-lambda', {
 			runtime: lambda.Runtime.PYTHON_3_9,
 			entry: "../src/redirect_short_url",
+			memorySize: 512,
 			environment: {
 				TABLE_NAME: tableName,
 				TABLE_REGION: tableRegion,
@@ -73,6 +74,7 @@ export class UrlliteStack extends cdk.Stack {
 		const createUrlLambda = new lambda_python.PythonFunction(this, 'urlite-createurl-lambda', {
 			entry: "../src/create_short_url",
 			runtime: lambda.Runtime.PYTHON_3_9,
+			memorySize: 512,
 			environment: {
 				TABLE_NAME: tableName,
 				TABLE_REGION: tableRegion,
@@ -154,6 +156,7 @@ export class UrlliteStack extends cdk.Stack {
 		bucket.grantRead(oai);
 
 		const distribution = new aws_cloudfront.Distribution(this, 'urlite-distribution', {
+			httpVersion: aws_cloudfront.HttpVersion.HTTP2_AND_3,
 			defaultBehavior: {
 				origin: new aws_cloudfront_origins.HttpOrigin(apigatewayUrl, {
 					originPath: '/prod/urls',

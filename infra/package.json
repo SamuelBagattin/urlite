@@ -13,17 +13,17 @@
   "devDependencies": {
     "@types/jest": "latest",
     "@types/node": "latest",
-    "aws-cdk": "^2.33.0",
+    "aws-cdk": "~2.33.0",
     "jest": "latest",
     "ts-jest": "latest",
     "ts-node": "latest",
     "typescript": "latest"
   },
   "dependencies": {
-    "@aws-cdk/aws-lambda-python-alpha": "^2.33.0-alpha.0",
-    "@aws-sdk/client-acm": "^3.131.0",
-    "@aws-sdk/client-route-53": "^3.131.0",
-    "@aws-sdk/client-sts": "^3.131.0",
+    "@aws-cdk/aws-lambda-python-alpha": "2.33.0-alpha.0",
+    "@aws-sdk/client-acm": "~3.131.0",
+    "@aws-sdk/client-route-53": "~3.131.0",
+    "@aws-sdk/client-sts": "~3.131.0",
     "aws-cdk-lib": "latest",
     "constructs": "latest",
     "source-map-support": "latest"

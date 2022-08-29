@@ -25,13 +25,13 @@ infra-install:
 .EXPORT_ALL_VARIABLES:
 AWS_PROFILE = samuel
 infra-diff: infra-install
-	cd $(INFRA_DIR) && $(npx) cdk diff
+	cd $(INFRA_DIR) && $(NPX) cdk diff
 
 .PHONY: infra-diff
 .EXPORT_ALL_VARIABLES:
 AWS_PROFILE = samuel
 infra-deploy: build-website infra-install
-	cd $(INFRA_DIR) && $(npx) cdk deploy
+	cd $(INFRA_DIR) && $(NPX) cdk deploy
 
 .PHONY: aws-login
 aws-login:
