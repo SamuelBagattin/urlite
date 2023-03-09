@@ -27,7 +27,7 @@ AWS_PROFILE = samuel
 infra-diff: infra-install
 	cd $(INFRA_DIR) && $(NPX) cdk diff
 
-.PHONY: infra-diff
+.PHONY: infra-deploy
 .EXPORT_ALL_VARIABLES:
 AWS_PROFILE = samuel
 infra-deploy: build-website infra-install

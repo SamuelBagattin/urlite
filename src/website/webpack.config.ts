@@ -86,16 +86,19 @@ const config: webpack.Configuration = {
         minimizer: [
             new ImageMinimizerPlugin({
                 minimizer: {
-                    implementation: ImageMinimizerPlugin.squooshMinify,
+                    implementation: ImageMinimizerPlugin.sharpMinify,
                     options: {
-                        // Your options for `squoosh`
+                        encodeOptions: {
+                            // Your options for `sharp`
+                            // https://sharp.pixelplumbing.com/api-output
+                        },
                     },
                 },
                 generator: [
                     {
                         // You can apply generator using `?as=webp`, you can use any name and provide more options
                         preset: "webp",
-                        implementation: ImageMinimizerPlugin.squooshGenerate,
+                        implementation: ImageMinimizerPlugin.sharpGenerate,
                         options: {
                             encodeOptions: {
                                 webp: {
