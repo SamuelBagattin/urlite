@@ -22,9 +22,9 @@
   },
   "dependencies": {
     "@aws-cdk/aws-lambda-python-alpha": "~2.68.0-alpha.0",
-    "@aws-sdk/client-acm": "~3.287.0",
-    "@aws-sdk/client-route-53": "~3.287.0",
-    "@aws-sdk/client-sts": "~3.287.0",
+    "@aws-sdk/client-acm": "~3.679.0",
+    "@aws-sdk/client-route-53": "~3.679.0",
+    "@aws-sdk/client-sts": "~3.679.0",
     "aws-cdk-lib": "^2.68.0",
     "constructs": "^10.1.272",
     "source-map-support": "^0.5.21"
