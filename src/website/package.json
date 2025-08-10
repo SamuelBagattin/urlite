@@ -24,7 +24,7 @@
     "html-webpack-plugin": "^5.5.0",
     "image-minimizer-webpack-plugin": "^3.8.1",
     "mini-css-extract-plugin": "^2.7.3",
-    "node-sass": "^8.0.0",
+    "node-sass": "^9.0.0",
     "prettier": "^2.8.4",
     "rimraf": "^4.4.0",
     "sass": "^1.58.3",
